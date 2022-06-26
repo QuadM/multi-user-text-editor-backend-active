@@ -20,7 +20,10 @@ mongoose
 const PORT = process.env.PORT || 3001;
 const io = socket(PORT, {
   cors: {
-    origin: "https://quadm-text-editor.herokuapp.com",
+    origin: [
+      "http://localhost:3000",
+      "https://quadm-text-editor.herokuapp.com",
+    ],
     methods: ["GET", "POST"],
   },
 });
@@ -57,7 +60,7 @@ const io = socket(PORT, {
 //     quillContents: "",
 //   },
 // ];
-
+let rooms = {};
 io.on("connection", (stream) => {
   //-------------------------------------------------------------------//
   stream.on("get-all-docs", async () => {
@@ -94,16 +97,17 @@ io.on("connection", (stream) => {
   //-------------------------------------------------------------------//
   stream.on("get-doc", async (docID) => {
     stream.join(docID);
+    rooms[docID] = rooms[docID] + 1 || 1;
+    console.log("on join client count :", rooms[docID]);
+
     //this is an ES6 Set of all client ids in the room
-    const room = await stream.rooms.get("get-doc");
-    const rooms = await stream.rooms;
-    console.log("rooms are:", rooms, "\nroom is:", room);
+    // console.log("rooms are:", rooms);
     //to get the number of clients in this room
     // const numClients = clients ? clients.size : 0;
     const doc = await Document.findOne({ _id: docID });
     console.log(doc);
-    stream.emit("load-doc", doc);
-    // stream.broadcast.to(docID).emit("client-number", numClients);
+    stream.emit("load-doc", { doc, clientno: rooms[docID] });
+    stream.broadcast.to(docID).emit("client-number", rooms[docID]);
 
     //-------------------------------------------------------------//
     stream.on("make-text-changes", ({ docID, quillContents, delta }) => {
@@ -120,6 +124,10 @@ io.on("connection", (stream) => {
       await doc.save();
       console.log("saved", doc);
       // stream.broadcast.to(docID).emit("saved-doc", "saved");
+    });
+    stream.on("disconnect", () => {
+      rooms[docID] = rooms[docID] - 1 || 0;
+      stream.broadcast.to(docID).emit("client-number", rooms[docID]);
     });
   });
   //-------------------------------------------------------------------//
