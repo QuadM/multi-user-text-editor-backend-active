@@ -95,14 +95,15 @@ io.on("connection", (stream) => {
   stream.on("get-doc", async (docID) => {
     stream.join(docID);
     //this is an ES6 Set of all client ids in the room
-    const clients = stream.rooms.get("get-doc");
-    console.log("Clients are", clients);
+    const room = await stream.rooms.get("get-doc");
+    const rooms = await stream.rooms;
+    console.log("rooms are:", rooms, "\nroom is:", room);
     //to get the number of clients in this room
-    const numClients = clients ? clients.size : 0;
+    // const numClients = clients ? clients.size : 0;
     const doc = await Document.findOne({ _id: docID });
     console.log(doc);
     stream.emit("load-doc", doc);
-    stream.broadcast.to(docID).emit("client-number", numClients);
+    // stream.broadcast.to(docID).emit("client-number", numClients);
 
     //-------------------------------------------------------------//
     stream.on("make-text-changes", ({ docID, quillContents, delta }) => {
