@@ -17,7 +17,8 @@ mongoose
   .catch((e) => console.error(e));
 
 //---------------------------------------------------------------------//
-const io = socket(3001, {
+const PORT = process.env.PORT || 3001;
+const io = socket(PORT, {
   cors: {
     origin: [
       "http://localhost:3000",
