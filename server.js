@@ -20,11 +20,7 @@ mongoose
 const PORT = process.env.PORT || 3001;
 const io = socket(PORT, {
   cors: {
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3002",
-      "https://quadm-text-editor.herokuapp.com/",
-    ],
+    origin: "https://quadm-text-editor.herokuapp.com",
     methods: ["GET", "POST"],
   },
 });
