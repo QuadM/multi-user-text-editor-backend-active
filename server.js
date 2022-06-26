@@ -63,6 +63,7 @@ io.on("connection", (stream) => {
   stream.on("get-all-docs", async () => {
     let data = await Document.find();
     data = data.map((d) => _.pick(d, ["_id", "title"]));
+    data = data.map((d) => (d.title = d.title || "Untitled Document"));
     stream.broadcast.emit("recieve-all-docs", data);
   });
   //-------------------------------------------------------------------//
@@ -78,6 +79,7 @@ io.on("connection", (stream) => {
     stream.broadcast.emit("created-new-doc", doc);
     let data = await Document.find();
     data = data.map((d) => _.pick(d, ["_id", "title"]));
+    data = data.map((d) => (d.title = d.title || "Untitled Document"));
     stream.broadcast.emit("recieve-all-docs", data);
   });
   //-------------------------------------------------------------------//
@@ -87,6 +89,7 @@ io.on("connection", (stream) => {
     await Document.deleteOne({ _id: docID });
     let data = await Document.find();
     data = data.map((d) => _.pick(d, ["_id", "title"]));
+    data = data.map((d) => (d.title = d.title || "Untitled Document"));
     stream.broadcast.emit("recieve-all-docs", data);
   });
   //-------------------------------------------------------------------//
