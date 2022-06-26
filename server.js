@@ -108,9 +108,11 @@ io.on("connection", (stream) => {
     });
     //-------------------------------------------------------------//
     stream.on("save-doc", async ({ title, quillContents }) => {
-      await Document.findOneAndUpdate({ _id: docID }, { title, quillContents });
+      doc.title = title;
+      doc.quillContents = quillContents;
+      await doc.save();
+      console.log("saved", doc);
       // stream.broadcast.to(docID).emit("saved-doc", "saved");
-      const found = await Document.findOne({ _id: docID });
     });
   });
   //-------------------------------------------------------------------//
